@@ -11,10 +11,12 @@ Script Purpose:
 
 USE master;
 
+# Create our database
 CREATE DATABASE DataWarehouse;
 
 USE DataWarehouse;
 
+# Create Shemas
 CREATE SCHEMA bronze;
 GO
 CREATE SCHEMA silver;
