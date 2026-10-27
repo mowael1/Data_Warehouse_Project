@@ -13,7 +13,9 @@ WARNING:
 
 USE DataWarehouse;
 
--- Load data from crm system
+------------------------------------------------
+-- Create bronze CRM Tables
+------------------------------------------------
 IF OBJECT_ID('bronze.crm_cust_info', 'U') IS NOT NULL
 	DROP TABLE bronze.crm_cust_info;
 
@@ -57,7 +59,9 @@ CREATE TABLE bronze.crm_sales_details (
 	sls_price INT
 );
 
--- Load data from erp system
+------------------------------------------------
+-- Create bronze ERP tables
+------------------------------------------------
 IF OBJECT_ID('bronze.erp_loc_a101', 'U') IS NOT NULL
 	DROP TABLE bronze.erp_loc_a101;
 
