@@ -8,15 +8,15 @@ Script Purpose:
 		The script sets up three schemas within the database: 'bronze', 'silver', and 'gold'.
 */
 
-
 USE master;
 
-# Create our database
+-- Create our database
 CREATE DATABASE DataWarehouse;
-
+GO
 USE DataWarehouse;
+GO
 
-# Create Shemas
+-- Create Shemas
 CREATE SCHEMA bronze;
 GO
 CREATE SCHEMA silver;
