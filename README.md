@@ -160,7 +160,7 @@ Quality checks were written to validate the Silver and Gold layers, including:
 
 ## 📊 Analytics & Insights
 
-After building and validating the warehouse, I used the **Gold layer** as the single source of truth to run SQL-based analysis and answer business questions about **customers, products, and sales**. The analysis scripts live in the [`analytics/`](analytics/) folder and follow a logical progression, from understanding the data to uncovering trends and segments.
+After building and validating the warehouse, I used the **Gold layer** as the single source of truth to run SQL-based analysis and answer business questions about **customers, products, and sales**. The analysis scripts live in the [`analysis/`](analysis/) folder and follow a logical progression, from understanding the data to uncovering trends and segments.
 
 | # | Script | Focus |
 |---|--------|-------|
