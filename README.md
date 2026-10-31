@@ -21,7 +21,7 @@ This project covers the **full data journey**, from raw files to business insigh
 
 4. **Explores** the data (EDA) to understand its structure, ranges, and key measures
 5. **Analyzes** trends, rankings, and segments using advanced SQL (window functions, CTEs)
-6. **Delivers** customer and product reports plus business insights for decision-making
+6. **Delivers** a key metrics report, customer and product segmentation, and business insights for decision-making
 
 ---
 
@@ -108,7 +108,7 @@ The Gold Layer is the business-level data representation, structured to support 
 | marital_status   | NVARCHAR(50)  | The marital status of the customer (e.g., 'Married', 'Single').                              |
 | gender           | NVARCHAR(50)  | The gender of the customer (e.g., 'Male', 'Female', 'n/a').                                  |
 | birthdate        | DATE          | The date of birth of the customer, formatted as YYYY-MM-DD (e.g., 1971-10-06).               |
-| create_date      | DATE          | The date and time when the customer record was created in the system|
+| create_date      | DATE          | The date when the customer record was created in the system. |
 
 ### 2. `gold.dim_products`
 - **Purpose:** Provides information about the products and their attributes.
@@ -125,7 +125,7 @@ The Gold Layer is the business-level data representation, structured to support 
 | maintenance         | NVARCHAR(50)  | Indicates whether the product requires maintenance (e.g., 'Yes', 'No').                       |
 | cost                | INT           | The cost or base price of the product, measured in monetary units.                            |
 | product_line        | NVARCHAR(50)  | The specific product line or series to which the product belongs (e.g., Road, Mountain).      |
-| start_date          | DATE          | The date when the product became available for sale or use, stored in|
+| start_date          | DATE          | The date when the product became available for sale or use. |
 
 ### 3. `gold.fact_sales`
 - **Purpose:** Stores transactional sales data for analytical purposes.
@@ -160,11 +160,56 @@ Quality checks were written to validate the Silver and Gold layers, including:
 
 ## 📊 Analytics & Insights
 
-SQL-based analytics built on top of the Gold layer, covering:
+After building and validating the warehouse, I used the **Gold layer** as the single source of truth to run SQL-based analysis and answer business questions about **customers, products, and sales**. The analysis scripts live in the [`analytics/`](analytics/) folder and follow a logical progression, from understanding the data to uncovering trends and segments.
 
-- **Customer Behavior:** segmentation and purchasing patterns
-- **Product Performance:** top and bottom performing products and categories
-- **Sales Trends:** growth over time and key business metrics
+| # | Script | Focus |
+|---|--------|-------|
+| 1 | [`01_dim_dates_exploration.sql`](analytics/01_dim_dates_exploration.sql) | Dimensions & date exploration |
+| 2 | [`02_measure_exploration.sql`](analytics/02_measure_exploration.sql) | Key business measures |
+| 3 | [`03_magnitude_analysis.sql`](analytics/03_magnitude_analysis.sql) | Magnitude & ranking analysis |
+| 4 | [`04_advanced_analysis.sql`](analytics/04_advanced_analysis.sql) | Advanced analytics |
+
+### 🔍 1. Dimensions & Date Exploration
+Understanding the structure and boundaries of the data:
+
+- Listed the unique **countries** of customers and the full **category → subcategory → product** hierarchy
+- Found the **first and last order dates** and the total time span of sales
+- Calculated the **age range** of customers (oldest and youngest)
+
+### 📏 2. Measures Exploration
+Calculating the key metrics of the business:
+
+- Total sales, total quantity sold, and average selling price
+- Total number of orders, products, and customers
+- Number of customers who actually placed an order
+- A single consolidated **key metrics report** built with `UNION ALL`
+
+### 📐 3. Magnitude & Ranking Analysis
+Comparing measures across dimensions:
+
+- **Customers** by country and by gender
+- **Products** by category, and **average cost** per category
+- **Revenue** by category and by customer
+- **Items sold** by country
+- **Top 5 and bottom 5 products** by revenue (`TOP N`)
+
+### 📈 4. Advanced Analytics
+Digging deeper into trends, performance, and segments:
+
+| Analysis | What it answers | Techniques |
+|----------|-----------------|------------|
+| **Change Over Time** | How do sales, customers, and quantity change by year, by month, and by month within each year? | `YEAR()`, `MONTH()`, `GROUP BY` |
+| **Cumulative Analysis** | What are the running total of sales and the moving average of price over time? | `DATETRUNC`, window functions (`SUM() OVER`, `AVG() OVER`) |
+| **Performance Analysis** | How does each product perform each year compared to its own average and to the previous year? | CTEs, `AVG() OVER (PARTITION BY)`, `LAG()`, `CASE WHEN` |
+| **Part-to-Whole Analysis** | Which categories contribute the most to overall sales? | Window functions, percentage calculation |
+| **Data Segmentation (Products)** | How many products fall into each cost range? | `CASE WHEN`, `GROUP BY` |
+| **Data Segmentation (Customers)** | How many customers are **VIP**, **Regular**, or **New** based on lifespan and spending? | CTEs, `DATEDIFF`, `CASE WHEN` |
+
+**Customer segmentation rules:**
+
+- 🏆 **VIP:** at least 12 months of history and spending more than 5,000
+- 👤 **Regular:** at least 12 months of history and spending 5,000 or less
+- 🆕 **New:** lifespan of less than 12 months
 
 ---
 
@@ -175,13 +220,21 @@ data-warehouse-project/
 │
 ├── datasets/               # Source CSV files (CRM & ERP)
 │
-├── docs/                   # Architecture, data model, data flow & naming conventions
+├── docs/                   # Architecture, data flow, data catalog & naming conventions
+│
+├── imgs/                   # Diagrams used in this README
 │
 ├── scripts/
 │   ├── init_database.sql   # Database & schemas creation
 │   ├── bronze/             # Raw data ingestion
 │   ├── silver/             # Cleaning & transformation
 │   └── gold/               # Star schema views
+│
+├── analytics/
+│   ├── 01_dim_dates_exploration.sql   # Dimensions & date exploration
+│   ├── 02_measure_exploration.sql     # Key business measures
+│   ├── 03_magnitude_analysis.sql      # Magnitude & ranking analysis
+│   └── 04_advanced_analysis.sql       # Trends, performance, segmentation
 │
 ├── tests/                  # Data quality checks
 │
@@ -201,7 +254,7 @@ data-warehouse-project/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/<your-username>/<your-repo-name>.git
+   git clone https://github.com/mowael1/Data_Warehouse_Project.git
    ```
 2. **Update the file paths** inside the bronze load script to point to the `datasets/` folder on your machine
 3. **Run the scripts in this order:**
@@ -216,7 +269,6 @@ data-warehouse-project/
    EXEC bronze.load_bronze;
    EXEC silver.load_silver;
    ```
-5. **Run the data quality checks** in `tests/` and query the `gold` views
 
 ---
 
@@ -224,9 +276,10 @@ data-warehouse-project/
 
 - Designing a layered **data warehouse architecture**
 - Building **ETL pipelines** with stored procedures, logging, and error handling
-- **Data cleansing** and quality validation
+- **Data cleaning** and quality validation
 - **Dimensional modeling** (fact & dimension tables, surrogate keys)
-- Writing **analytical SQL** (CTEs, window functions, aggregations)
+- Performing **Exploratory Data Analysis** (dimensions, measures, magnitude, and ranking analysis)
+- Writing **advanced analytical SQL**: CTEs, window functions (`LAG`, running totals, moving averages), year-over-year comparison, part-to-whole, and customer/product segmentation
 - **Documenting** data models and pipelines for technical and business audiences
 
 ---
